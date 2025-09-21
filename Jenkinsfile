@@ -22,20 +22,19 @@ pipeline {
             }
         }
 
-      stage('SonarQube Analysis') {
+     stage('SonarQube Analysis') {
     steps {
         withSonarQubeEnv('sonarserver') {
-            withEnv(["PATH+SONAR=${tool 'sonar-scanner'}/bin"]) {
-                sh """
-                    sonar-scanner \
-                    -Dsonar.projectKey=emc-nodejs-app \
-                    -Dsonar.sources=. \
-                    -Dsonar.login=$SONAR_AUTH_TOKEN
-                """
-            }
+            sh '''
+                sonar-scanner \
+                  -Dsonar.projectKey=emc-nodejs-app \
+                  -Dsonar.sources=. \
+                  -Dsonar.token=$SONAR_TOKEN
+            '''
         }
     }
 }
+
 
 
         stage('Quality Gate') {
