@@ -29,7 +29,7 @@ pipeline {
                 sonar-scanner \
                   -Dsonar.projectKey=emc-nodejs-app \
                   -Dsonar.sources=. \
-                  -Dsonar.token=$SONAR_TOKEN
+                  -Dsonar.token=$sonarkey
             '''
         }
     }
