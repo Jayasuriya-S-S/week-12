@@ -1,1 +1,58 @@
 
+pipeline {
+    agent any
+    environment {
+        IMAGE_NAME = 'emc-nodejs-app:latest'
+        DOCKERHUB_CREDENTIALS = 'dockerhub-token'
+        DOCKERHUB_REPO = 'yourdockerhubusername/emc-nodejs-app'
+        SONARQUBE = 'SonarQubeServer'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/yourusername/emc-nodejs-app.git'
+            }
+        }
+
+        stage('Install & Test') {
+            steps {
+                sh 'npm install'
+                sh 'npm test'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv(SONARQUBE) {
+                    sh 'sonar-scanner -Dsonar.projectKey=emc-nodejs-app -Dsonar.sources=.'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        def customImage = docker.build("${DOCKERHUB_REPO}:latest")
+                        customImage.push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                echo 'Deployment can be done on any host by pulling the image from Docker Hub'
+            }
+        }
+    }
+}
