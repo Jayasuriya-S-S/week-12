@@ -2,10 +2,10 @@
 pipeline {
     agent any
     environment {
-        IMAGE_NAME = 'emc-nodejs-app:latest'
-        DOCKERHUB_CREDENTIALS = 'dockerhub-token'
-        DOCKERHUB_REPO = 'yourdockerhubusername/emc-nodejs-app'
-        SONARQUBE = 'SonarQubeServer'
+        IMAGE_NAME = 'dockerimage:latest'
+        DOCKERHUB_CREDENTIALS = 'Docker_cred'
+        DOCKERHUB_REPO = 'jaiswathi1234/devops-dockerhub'
+        SONARQUBE = 'sonarserver'
     }
 
     stages {
