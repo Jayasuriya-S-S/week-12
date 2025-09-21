@@ -22,11 +22,17 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+      stage('SonarQube Analysis') {
     steps {
-        withSonarQubeEnv('sonarserver') { // This should match the name of your SonarQube server in Jenkins
-            // Use the scanner installed by Jenkins plugin
-            sh 'sonar-scanner -Dsonar.projectKey=emc-nodejs-app -Dsonar.sources=.'
+        withSonarQubeEnv('sonarserver') {
+            withEnv(["PATH+SONAR=${tool 'sonar-scanner'}/bin"]) {
+                sh """
+                    sonar-scanner \
+                    -Dsonar.projectKey=emc-nodejs-app \
+                    -Dsonar.sources=. \
+                    -Dsonar.login=$SONAR_AUTH_TOKEN
+                """
+            }
         }
     }
 }
