@@ -1,64 +1,29 @@
-
 pipeline {
     agent any
+
     environment {
-        IMAGE_NAME = 'dockerimage:latest'
-        DOCKERHUB_CREDENTIALS = 'Docker_cred'
-        DOCKERHUB_REPO = 'jaiswathi1234/devops-dockerhub'
-        SONARQUBE = 'sonarserver'
+        SONAR_TOKEN = credentials('sonarkey') // Jenkins Secret Text credential ID
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Code Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Jayasuriya-S-S/week-12.git'
+                 git branch: 'main', url: 'https://github.com/Jayasuriya-S-S/week-12.git'
             }
         }
 
-        stage('Install & Test') {
+        stage('SonarQube Analysis') {
             steps {
-                sh 'npm install'
-                sh 'npm test'
-            }
-        }
-
-     stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('sonarserver') {
-            sh '''
-                sonar-scanner \
-                  -Dsonar.projectKey=emc-nodejs-app \
-                  -Dsonar.sources=. \
-                  -Dsonar.token=$sonarkey
-            '''
-        }
-    }
-}
-
-
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                withSonarQubeEnv('sonarserver') { // 'sonarserver' is the SonarQube server configured in Jenkins
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=demo-check \
+                          -Dsonar.projectName="SonarQube Jenkins Demo" \
+                          -Dsonar.projectVersion=1.0 \
+                          -Dsonar.sources=src/main/java \
+                          -Dsonar.token=$SONAR_TOKEN
+                    '''
                 }
-            }
-        }
-
-        stage('Docker Build & Push') {
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        def customImage = docker.build("${DOCKERHUB_REPO}:latest")
-                        customImage.push()
-                    }
-                }
-            }
-        }
-
-        stage('Deploy Container') {
-            steps {
-                echo 'Deployment can be done on any host by pulling the image from Docker Hub'
             }
         }
     }
