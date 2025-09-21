@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/yourusername/emc-nodejs-app.git'
+                git branch: 'main', url: 'https://github.com/Jayasuriya-S-S/week-12.git'
             }
         }
 
