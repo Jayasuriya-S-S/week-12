@@ -23,12 +23,14 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('sonarserver') {
-                    sh 'sonar-scanner -Dsonar.projectKey=emc-nodejs-app -Dsonar.sources=.'
-                }
-            }
+    steps {
+        withSonarQubeEnv('sonarserver') { // This should match the name of your SonarQube server in Jenkins
+            // Use the scanner installed by Jenkins plugin
+            sh 'sonar-scanner -Dsonar.projectKey=emc-nodejs-app -Dsonar.sources=.'
         }
+    }
+}
+
 
         stage('Quality Gate') {
             steps {
